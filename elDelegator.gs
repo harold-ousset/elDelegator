@@ -41,10 +41,10 @@ function listDelegations(userId) {
   userId = userId || Session.getActiveUser().getEmail();
   var scopes = ["https://mail.google.com/"];
   var url = 'https://www.googleapis.com/gmail/v1/users/'+userId+'/settings/delegates';
-  
+
   var w2dInstance = new w2d(userId,scopes,jsonKey);
   var token = w2dInstance.getToken().token;
-  
+
   var method = 'get';
   var param = {
     method      : method,
@@ -58,7 +58,7 @@ function listDelegations(userId) {
     return res.delegates;
   }
   else{
-    throw 'could not finish listing the delegations for '+userId+' : '+result.getContentText(); 
+    throw 'could not finish listing the delegations for '+userId+' : '+result.getContentText();
   }
 }
 
@@ -71,12 +71,12 @@ function addDelegation(delegator, delegated){
   delegator = delegator || Session.getActiveUser().getEmail();
   var scopes = ["https://www.googleapis.com/auth/gmail.settings.sharing"];
   var url = 'https://www.googleapis.com/gmail/v1/users/'+delegator+'/settings/delegates';
-  
+
   var w2dInstance = new w2d(delegator,scopes,jsonKey);
   var token = w2dInstance.getToken().token;
-  
+
   var method = 'post';
-  
+
   var payload = {delegateEmail:delegated};
   var param = {
     method: method,
@@ -98,7 +98,7 @@ function addDelegation(delegator, delegated){
     }
     catch(err){}
   }
-  throw 'could not finish creating the delegations for '+delegator+' : '+result.getContentText(); 
+  throw 'could not finish creating the delegations for '+delegator+' : '+result.getContentText();
 }
 
 /**
@@ -110,12 +110,12 @@ function removeDelegation(delegator, delegated){
   delegator = delegator || Session.getActiveUser().getEmail();
   var scopes = ["https://www.googleapis.com/auth/gmail.settings.sharing"];
   var url = 'https://www.googleapis.com/gmail/v1/users/'+delegator+'/settings/delegates/'+delegated;
-  
+
   var w2dInstance = new w2d(delegator,scopes,jsonKey);
   var token = w2dInstance.getToken().token;
-  
+
   var method = 'DELETE';
-  
+
   var param = {
     method: method,
     contentType: 'application/json',
@@ -126,5 +126,5 @@ function removeDelegation(delegator, delegated){
   if(result.getResponseCode() ===  204){
     return true;
   }
-  throw 'could not finish removing the delegations for '+delegator+' : '+result.getContentText(); 
+  throw 'could not finish removing the delegations for '+delegator+' : '+result.getContentText();
 }
