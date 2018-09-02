@@ -128,3 +128,52 @@ function removeDelegation(delegator, delegated){
   }
   throw 'could not finish removing the delegations for '+delegator+' : '+result.getContentText();
 }
+
+/**
+* perform batch delegation operations with basic exponential backoff
+* @param{Array} batch, an array of instructions to perform [delegator, delegated, *operation*]
+* delegator/delegated email giving/eceiving delegation, *operation* an optional parameter to specify the operation default is "add" but can be set to "remove"
+* @param{String} operation, optional parameter describing the action to perform add/remove default is "add"
+* @return{Array} the result of each operations true | the error
+**/
+function batchDelegation(batch, operation){
+  operation  = operation || "add";
+  var performOperation = function(instruction){
+    var action = operation;
+    if(instruction[2] !== undefined){
+      action = instruction[2];
+    }
+    var result;
+    var n = 0;
+    var loop = true;
+    do{
+      try{
+        switch(action){
+          case "remove":
+            result = removeDelegation(instruction[0], instruction[1]);
+            break;
+          case "add": default:
+            result = addDelegation(instruction[0], instruction[1]);
+            break;
+        }
+      }
+      catch(err){
+        result = err;
+      }
+      if(result === true){
+        loop = false;
+      }
+      else{
+        if(n > 4){
+          loop = false;
+        }else{
+          Utilities.sleep((Math.pow(2,n)*1000) + (Math.round(Math.random() * 1000)));
+          n++;
+        }
+      }
+    }
+    while(loop);
+    return result;
+  };
+  return batch.map(performOperation);
+}
